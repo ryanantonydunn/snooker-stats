@@ -3,7 +3,7 @@ import colors from "tailwindcss/colors";
 import { useEventWinnersByPrizeMoney } from "../store/hooks";
 import { PrizeMoneyEvent, colorHues } from "../store/types";
 
-interface PlayersByPrizeMoneyProps {
+interface EventWinnersByPrizeMoneyProps {
   year: number;
 }
 
@@ -17,7 +17,7 @@ function formatCurrency(n: number) {
   return formatter.format(n);
 }
 
-export function PlayersByPrizeMoney({ year }: PlayersByPrizeMoneyProps) {
+export function EventWinnersByPrizeMoney({ year }: EventWinnersByPrizeMoneyProps) {
   const data = useEventWinnersByPrizeMoney(year);
 
   const getEvent = React.useCallback(
@@ -62,7 +62,10 @@ export function PlayersByPrizeMoney({ year }: PlayersByPrizeMoneyProps) {
                   <div
                     key={eventId}
                     className="leading-none p-2 border-r-4 border-slate-100"
-                    style={{ backgroundColor: eventColor, width: `${(event.money / data.maxPlayerPrizeMoney) * 100}%` }}
+                    style={{
+                      backgroundColor: eventColor,
+                      width: `${(event.moneyWinner / data.maxPlayerPrizeMoney) * 100}%`,
+                    }}
                   >
                     {event.name}
                   </div>

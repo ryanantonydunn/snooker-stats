@@ -3,11 +3,11 @@ import colors from "tailwindcss/colors";
 import { useEventWinnersByPrizeMoney } from "../store/hooks";
 import { colorHues } from "../store/types";
 
-interface EventsByPrizeMoneyProps {
+interface EventsByWinnersPrizeMoneyProps {
   year: number;
 }
 
-export function EventsByPrizeMoney({ year }: EventsByPrizeMoneyProps) {
+export function EventsByWinnersPrizeMoney({ year }: EventsByWinnersPrizeMoneyProps) {
   const data = useEventWinnersByPrizeMoney(year);
 
   if (!data?.events.length) {
@@ -34,9 +34,12 @@ export function EventsByPrizeMoney({ year }: EventsByPrizeMoneyProps) {
             <div className="w-4/6">
               <div
                 className="p-1 text-white font-bold "
-                style={{ backgroundColor: playerColor, width: `${(event.money / data.maxEventPrizeMoney) * 100}%` }}
+                style={{
+                  backgroundColor: playerColor,
+                  width: `${(event.moneyWinner / data.maxEventPrizeMoney) * 100}%`,
+                }}
               >
-                {event.money}
+                {event.moneyWinner}
               </div>
             </div>
             <div className="p-1 ml-4 font-bold w-1/6" style={{ color: playerColor }}>

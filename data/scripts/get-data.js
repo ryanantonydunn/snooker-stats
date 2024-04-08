@@ -1,4 +1,4 @@
-const { get, saveJSON, getQueue } = require("./utils");
+const { get, saveJSON, getQueue, fileExists, unique, loadJSON } = require("./utils");
 
 async function getEventsInSeason(year) {
   const data = await get(`https://api.snooker.org/?t=5&s=${year}`);
@@ -19,17 +19,27 @@ async function getEventMatches(eventIds) {
 }
 
 async function getPlayers(playerIds) {
-  const urls = playerIds.map((id) => `https://api.snooker.org/?p=${id}`);
+  const playerFile = (id) => `../saved/players/${id}.json`;
+  const playerIdsNotLoaded = unique(playerIds).filter((id) => !fileExists(playerFile(id)));
+  const urls = playerIdsNotLoaded.map((id) => `https://api.snooker.org/?p=${id}`);
   const data = await getQueue(urls);
   data.forEach((json, i) => {
-    saveJSON(`../saved/players/${playerIds[i]}.json`, json);
+    saveJSON(playerFile(playerIdsNotLoaded[i]), json);
   });
 }
 
-// const matches2023 = [
-//   1461, 1448, 1466, 1444, 1449, 1467, 1450, 1468, 1447, 1451, 1452, 1453, 1548,
-//   1454, 1445, 1455, 1456, 1446, 1761, 1560, 1459,
-// ];
-// const players2023 = [97, 16, 5, 1, 12, 81, 202, 546, 0];
+function getMatchesFromEventsInSeason(year) {
+  const events = loadJSON(`../saved/events-in-season/${year}.json`);
+  const rounds = loadJSON(`../saved/rounds-in-season/${year}.json`);
+  const eventIds = [];
+  events.forEach((event) => {
+    const eventRounds = rounds.filter((round) => round.EventID === event.ID).sort((a, b) => a.Round - b.Round);
+    console.log(event);
+    if (eventRounds.slice(-1)[0].ActualMoney > 20000) {
+      eventIds.push(event.EventID);
+    }
+  });
+  console.log(eventIds);
+}
 
-// getEventMatches([1460]);
+getMatchesFromEventsInSeason(2003);

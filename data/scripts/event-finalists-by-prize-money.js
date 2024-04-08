@@ -1,6 +1,6 @@
 const { loadJSON, saveJSON } = require("./utils");
 
-function getEventWinnersByPrizeMoney(year) {
+function getEventFinalistsByPrizeMoney(year) {
   const events = loadJSON(`../saved/events-in-season/${year}.json`);
   const rounds = loadJSON(`../saved/rounds-in-season/${year}.json`);
 
@@ -9,6 +9,7 @@ function getEventWinnersByPrizeMoney(year) {
   events.forEach((event) => {
     const eventRounds = rounds.filter((round) => round.EventID === event.ID).sort((a, b) => a.Round - b.Round);
     const final = eventRounds[eventRounds.length - 1];
+    const semi = eventRounds[eventRounds.length - 2];
     const isWorldChampionship = final.EventID === 1460; // currently has no prize money, so forcing
     if (final.ActualMoney > 20000 || isWorldChampionship) {
       eventData.push({
@@ -16,7 +17,7 @@ function getEventWinnersByPrizeMoney(year) {
         date: event.StartDate,
         name: event.Name,
         moneyWinner: isWorldChampionship ? 500000 : final.ActualMoney,
-        moneyRunnerup: 0,
+        moneyRunnerup: isWorldChampionship ? 200000 : semi.ActualMoney,
       });
     }
   });
@@ -25,17 +26,19 @@ function getEventWinnersByPrizeMoney(year) {
   eventData.forEach((event) => {
     const matches = loadJSON(`../saved/event-matches/${event.id}.json`);
     if (matches) {
-      const winnerId = matches.find((m) => m.Round === 15)?.WinnerID;
-      if (winnerId) {
-        event.winnerId = winnerId;
+      const final = matches.find((m) => m.Round === 15);
+      if (final.WinnerID) {
+        event.winnerId = final.WinnerID;
+        event.runnerupId = final.WinnerID === final.Player1ID ? final.Player2ID : final.Player1ID;
       }
     }
   });
 
-  const sortedEventData = eventData.sort((a, b) => b.moneyWinner - a.moneyWinner);
+  const sortedEventData = eventData.sort((a, b) => b.moneyWinner + b.moneyRunnerup - (a.moneyWinner + a.moneyRunnerup));
 
   // get player data
   const playerData = [];
+
   function loadPlayer(id) {
     const recordedPlayer = playerData.find((p) => p.id === id);
     if (recordedPlayer) {
@@ -64,11 +67,16 @@ function getEventWinnersByPrizeMoney(year) {
       player.wins.push(event.id);
       player.total += event.moneyWinner;
     }
+    if (event.runnerupId) {
+      const player = loadPlayer(event.runnerupId);
+      player.runnerups.push(event.id);
+      player.total += event.moneyRunnerup;
+    }
   });
 
   const sortedPlayers = playerData.sort((a, b) => b.total - a.total);
 
-  saveJSON(`../../public/data/event-winners-by-prize-money/${year}.json`, {
+  saveJSON(`../../public/data/event-finalists-by-prize-money/${year}.json`, {
     events: sortedEventData,
     players: sortedPlayers,
     maxEventPrizeMoney: Math.max(...eventData.map((e) => e.moneyWinner + e.moneyRunnerup)),
@@ -76,4 +84,4 @@ function getEventWinnersByPrizeMoney(year) {
   });
 }
 
-getEventWinnersByPrizeMoney(2023);
+getEventFinalistsByPrizeMoney(2023);

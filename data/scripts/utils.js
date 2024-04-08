@@ -48,6 +48,14 @@ function saveJSON(filePath, data) {
 }
 
 /**
+ * Does file exists
+ */
+function fileExists(filePath) {
+  const src = path.join(__dirname, filePath);
+  return fs.existsSync(src);
+}
+
+/**
  * Load JSON file
  */
 function loadJSON(filePath) {
@@ -64,6 +72,13 @@ function getDateString(d) {
 }
 
 /**
+ * Remove duplicates from array
+ */
+function unique(arr) {
+  return arr.filter((item, i) => arr.indexOf(item) === i);
+}
+
+/**
  * Await a delay
  */
 async function delay(ms) {
@@ -75,6 +90,8 @@ module.exports = {
   get,
   getQueue,
   getDateString,
+  fileExists,
   loadJSON,
   saveJSON,
+  unique,
 };
