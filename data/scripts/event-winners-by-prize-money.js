@@ -29,6 +29,10 @@ function getEventWinnersByPrizeMoney(year) {
         event.winnerId = winnerId;
       }
     }
+    // Tour championship
+    if (event.id === 1459) {
+      event.winnerId = 1;
+    }
   });
 
   const sortedEventData = eventData.sort((a, b) => b.money - a.money);

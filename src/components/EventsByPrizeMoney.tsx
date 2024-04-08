@@ -17,7 +17,7 @@ export function EventsByPrizeMoney({ year }: EventsByPrizeMoneyProps) {
   return (
     <>
       <h2 className="font-bold text-lg p-1 border-b border-slate-300 mb-4 text-center">
-        Events by prize money: {year}
+        Events by winner prize money: {year}/{Number(String(year).slice(-2)) + 1}
       </h2>
       <div className="flex items-center text-sm border-b border-slate-300 text-slate-500">
         <div className="p-1 py-2 text-right mr-4 w-1/6">Event name</div>
